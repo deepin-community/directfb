@@ -1,0 +1,6 @@
+usr/include
+usr/lib/*/libdirect.so
+usr/lib/*/libdirectfb.so
+usr/lib/*/libfusion.so
+usr/lib/*/lib++dfb.so
+usr/lib/*/pkgconfig

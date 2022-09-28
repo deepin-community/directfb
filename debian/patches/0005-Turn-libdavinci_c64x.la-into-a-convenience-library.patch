@@ -1,0 +1,21 @@
+From: Sebastian Ramacher <sramacher@debian.org>
+Date: Wed, 16 Aug 2017 11:08:16 +0200
+Subject: Turn libdavinci_c64x.la into a convenience library
+
+---
+ gfxdrivers/davinci/Makefile.am | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/gfxdrivers/davinci/Makefile.am b/gfxdrivers/davinci/Makefile.am
+index e697993..61827e3 100644
+--- a/gfxdrivers/davinci/Makefile.am
++++ b/gfxdrivers/davinci/Makefile.am
+@@ -20,7 +20,7 @@ INCLUDES = \
+ 
+ bin_PROGRAMS = c64xdump
+ 
+-lib_LTLIBRARIES = libdavinci_c64x.la
++noinst_LTLIBRARIES = libdavinci_c64x.la
+ 
+ davinci_LTLIBRARIES = libdirectfb_davinci.la
+ 

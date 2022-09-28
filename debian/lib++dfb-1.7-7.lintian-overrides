@@ -1,0 +1,2 @@
+# They are available as libfusion.so, etc.
+lib++dfb-1.7-7: dev-pkg-without-shlib-symlink usr/lib/*/lib++dfb-*.so.*

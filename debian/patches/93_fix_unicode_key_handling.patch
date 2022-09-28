@@ -1,0 +1,109 @@
+From: Debian Multimedia Maintainers
+ <pkg-multimedia-maintainers@lists.alioth.debian.org>
+Date: Thu, 16 Mar 2017 20:48:20 +0100
+Subject: _fix_unicode_key_handling
+
+===================================================================
+---
+ inputdrivers/keyboard/keyboard.c       | 17 +++++++++++++++++
+ inputdrivers/linux_input/linux_input.c | 23 +++++++++++++++++++++++
+ 2 files changed, 40 insertions(+)
+
+diff --git a/inputdrivers/keyboard/keyboard.c b/inputdrivers/keyboard/keyboard.c
+index 8d4dab7..f562231 100644
+--- a/inputdrivers/keyboard/keyboard.c
++++ b/inputdrivers/keyboard/keyboard.c
+@@ -91,6 +91,10 @@ keyboard_get_symbol( int                             code,
+      unsigned char index = KVAL(value);
+      int           base  = (level == DIKSI_BASE);
+ 
++     /* Handle unicode characters directly */
++     if (type >= 0x0f) {
++          return DFB_KEY( UNICODE, value ^ 0xf000 );
++     }
+      switch (type) {
+           case KT_FN:
+                if (index < 20)
+@@ -461,10 +465,17 @@ driver_get_keymap_entry( CoreInputDevice               *device,
+                          void                      *driver_data,
+                          DFBInputDeviceKeymapEntry *entry )
+ {
++     KeyboardData               *data = (KeyboardData*) driver_data;
+      int                         code = entry->code;
+      unsigned short              value;
+      DFBInputDeviceKeyIdentifier identifier;
+ 
++     /* switch to unicode mode to get the full keymap */
++     if (ioctl( data->vt_fd, KDSKBMODE, K_UNICODE ) < 0) {
++          D_PERROR( "DirectFB/Keyboard: K_UNICODE failed!\n" );
++          return DFB_INIT;
++     }
++
+      /* fetch the base level */
+      value = keyboard_read_value( driver_data, K_NORMTAB, code );
+ 
+@@ -508,6 +519,12 @@ driver_get_keymap_entry( CoreInputDevice               *device,
+      entry->symbols[DIKSI_ALT_SHIFT] = keyboard_get_symbol( code, value,
+                                                             DIKSI_ALT_SHIFT );
+ 
++     /* switch back to medium raw mode */
++     if (ioctl( data->vt_fd, KDSKBMODE, K_MEDIUMRAW ) < 0) {
++          D_PERROR( "DirectFB/Keyboard: K_MEDIUMRAW failed!\n" );
++          return DFB_INIT;
++     }
++
+      return DFB_OK;
+ }
+ 
+diff --git a/inputdrivers/linux_input/linux_input.c b/inputdrivers/linux_input/linux_input.c
+index 7e9a6ad..a74d879 100644
+--- a/inputdrivers/linux_input/linux_input.c
++++ b/inputdrivers/linux_input/linux_input.c
+@@ -424,6 +424,10 @@ keyboard_get_symbol( int                             code,
+      unsigned char index = KVAL(value);
+      int           base  = (level == DIKSI_BASE);
+ 
++     /* Handle unicode characters directly */
++     if (type >= 0x0f) {
++          return DFB_KEY( UNICODE, value ^ 0xf000 );
++     }
+      switch (type) {
+           case KT_FN:
+                if (index < 20)
+@@ -1980,10 +1984,23 @@ driver_get_keymap_entry( CoreInputDevice           *device,
+      int                         code = entry->code;
+      unsigned short              value;
+      DFBInputDeviceKeyIdentifier identifier;
++     int                         orig_mode;
+ 
+      if (data->vt_fd < 0)
+           return DFB_UNSUPPORTED;
+ 
++     /* save keyboard mode in order to restore it later */
++     if (ioctl( data->vt_fd, KDGKBMODE, &orig_mode ) < 0) {
++          D_PERROR( "DirectFB/Keyboard: KDGKBMODE failed!\n" );
++          return DFB_INIT;
++     }
++
++     /* switch to unicode mode to get the full keymap */
++     if (ioctl( data->vt_fd, KDSKBMODE, K_UNICODE ) < 0) {
++          D_PERROR( "DirectFB/Keyboard: K_UNICODE failed!\n" );
++          return DFB_INIT;
++     }
++
+      /* fetch the base level */
+      value = keyboard_read_value( driver_data, K_NORMTAB, code );
+ 
+@@ -2027,6 +2044,12 @@ driver_get_keymap_entry( CoreInputDevice           *device,
+      entry->symbols[DIKSI_ALT_SHIFT] = keyboard_get_symbol( code, value,
+                                                             DIKSI_ALT_SHIFT );
+ 
++     /* switch back to original mode */
++     if (ioctl( data->vt_fd, KDSKBMODE, orig_mode ) < 0) {
++          D_PERROR( "DirectFB/Keyboard: KDSKBMODE failed!\n" );
++          return DFB_INIT;
++     }
++
+      return DFB_OK;
+ }
+ 

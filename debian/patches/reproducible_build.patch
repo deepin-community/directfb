@@ -1,0 +1,95 @@
+Author: Reiner Herrmann <reiner@reiner-h.de>
+Description: Enable reproducible building
+ - Sort list of object files while linking
+ - Strip build time from binary
+
+Index: directfb-1.7.7/lib/direct/Makefile.am
+===================================================================
+--- directfb-1.7.7.orig/lib/direct/Makefile.am
++++ directfb-1.7.7/lib/direct/Makefile.am
+@@ -174,7 +174,7 @@
+ 
+ libdirect_fixed.a: .libs/libdirect.a
+ 	rm -f libdirect_fixed.a
+-	${AR} cru libdirect_fixed.a `find . -name "*.o" | grep -v '.libs' | grep -v dtest`
++	${AR} cru libdirect_fixed.a `find . -name "*.o" | grep -v '.libs' | grep -v dtest | LC_ALL=C sort`
+ 	${RANLIB} libdirect_fixed.a
+ 	cp -pf libdirect_fixed.a .libs/libdirect.a
+ 
+Index: directfb-1.7.7/src/core/Makefile.am
+===================================================================
+--- directfb-1.7.7.orig/src/core/Makefile.am
++++ directfb-1.7.7/src/core/Makefile.am
+@@ -12,7 +12,6 @@
+ 	-DDATADIR=\"${RUNTIME_SYSROOT}@DATADIR@\"		\
+ 	-DSOPATH=\"@SOPATH@\"		\
+ 	-DMODULEDIR=\"${RUNTIME_SYSROOT}@MODULEDIR@\"	\
+-	"-DBUILDTIME=\"`date -u "+%Y-%m-%d %H:%M"`\"" \
+ 	-DFLUXED_ARGS_BYTES=@FLUXED_ARGS_BYTES@
+ 
+ 
+Index: directfb-1.7.7/src/core/core.c
+===================================================================
+--- directfb-1.7.7.orig/src/core/core.c
++++ directfb-1.7.7/src/core/core.c
+@@ -270,7 +270,7 @@
+      direct_initialize();
+ 
+ 
+-     D_INFO( "DirectFB/Core: %s Application Core. ("BUILDTIME") %s%s\n",
++     D_INFO( "DirectFB/Core: %s Application Core. %s%s\n",
+              FUSION_BUILD_MULTI ? "Multi" : "Single",
+              DIRECT_BUILD_DEBUG ? "[ DEBUG ]" : "",
+              DIRECT_BUILD_TRACE ? "[ TRACE ]" : "" );
+Index: directfb-1.7.7/src/Makefile.am
+===================================================================
+--- directfb-1.7.7.orig/src/Makefile.am
++++ directfb-1.7.7/src/Makefile.am
+@@ -116,7 +116,7 @@
+ 
+ libdirectfb_fixed.a: .libs/libdirectfb.a
+ 	rm -f libdirectfb_fixed.a
+-	${AR} cru libdirectfb_fixed.a `find . -name "*.o" | grep -v '.libs'`
++	${AR} cru libdirectfb_fixed.a `find . -name "*.o" | grep -v '.libs' | LC_ALL=C sort`
+ 	${RANLIB} libdirectfb_fixed.a
+ 	cp -pf libdirectfb_fixed.a .libs/libdirectfb.a
+ 
+Index: directfb-1.7.7/lib/fusion/Makefile.am
+===================================================================
+--- directfb-1.7.7.orig/lib/fusion/Makefile.am
++++ directfb-1.7.7/lib/fusion/Makefile.am
+@@ -94,7 +94,7 @@
+ 
+ libfusion_fixed.a: .libs/libfusion.a
+ 	rm -f libfusion_fixed.a
+-	${AR} cru libfusion_fixed.a `find . -name "*.o" | grep -v '.libs'`
++	${AR} cru libfusion_fixed.a `find . -name "*.o" | grep -v '.libs' | LC_ALL=C sort`
+ 	${RANLIB} libfusion_fixed.a
+ 	cp -pf libfusion_fixed.a .libs/libfusion.a
+ 
+Index: directfb-1.7.7/lib/voodoo/Makefile.am
+===================================================================
+--- directfb-1.7.7.orig/lib/voodoo/Makefile.am
++++ directfb-1.7.7/lib/voodoo/Makefile.am
+@@ -95,7 +95,7 @@
+ 
+ libvoodoo_fixed.a: .libs/libvoodoo.a
+ 	rm -f libvoodoo_fixed.a
+-	${AR} cru libvoodoo_fixed.a `find . -name "*.o"`
++	${AR} cru libvoodoo_fixed.a `find . -name "*.o" | LC_ALL=C sort`
+ 	${RANLIB} libvoodoo_fixed.a
+ 	cp -pf libvoodoo_fixed.a .libs/libvoodoo.a
+ 
+Index: directfb-1.7.7/wm/unique/Makefile.am
+===================================================================
+--- directfb-1.7.7.orig/wm/unique/Makefile.am
++++ directfb-1.7.7/wm/unique/Makefile.am
+@@ -135,7 +135,7 @@
+ 
+ libuniquewm_fixed.a: .libs/libuniquewm.a
+ 	rm -f libuniquewm_fixed.a
+-	${AR} cru libuniquewm_fixed.a `find . -name "*.o" | grep -v '.libs'`
++	${AR} cru libuniquewm_fixed.a `find . -name "*.o" | grep -v '.libs' | LC_ALL=C sort`
+ 	${RANLIB} libuniquewm_fixed.a
+ 	cp -pf libuniquewm_fixed.a .libs/libuniquewm.a
+ 

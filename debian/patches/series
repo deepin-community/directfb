@@ -1,0 +1,7 @@
+02_fix_sh772x_build.patch
+93_fix_unicode_key_handling.patch
+94_fix_mknod.patch
+0004-Add-missing-files-from-upstream.patch
+0005-Turn-libdavinci_c64x.la-into-a-convenience-library.patch
+0006-fix-client-gfx_state-initialisation.patch
+reproducible_build.patch
